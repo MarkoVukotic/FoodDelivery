@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\Food;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class FoodTest extends TestCase
@@ -19,8 +19,8 @@ class FoodTest extends TestCase
     /**
      * @test
      */
-    public function it_creates_food_successfully(){
-
+    public function it_creates_food_successfully()
+    {
         $params = [
             'name' => 'Chicken and Rice',
             'price' => 3.99,
@@ -29,8 +29,82 @@ class FoodTest extends TestCase
         $response = $this->post('/food', $params);
 
         $response->assertCreated();
+        $this->assertDatabaseHas('food', [
+            'name' => 'Chicken and Rice',
+            'price' => 3.99,
+        ]);
     }
 
-    
+    /**
+     * @test
+     */
+    public function it_returns_all_of_the_food_avaliable()
+    {
+        Food::factory(2)->create();
+
+        $response = $this->get('/food');
+
+        $response->assertSuccessful();
+    }
+
+    /**
+     * @test
+     */
+    public function it_returns_a_message_when_there_are_no_foods_in_the_database()
+    {
+        $response = $this->get('/food')->getContent();
+
+        $this->assertEquals('We dont have any food left. Come back later!', $response);
+    }
+
+    /**
+     * @test
+     */
+    public function it_updates_food_successfully()
+    {
+        $food = Food::factory()->create([
+            'name' => 'Chicken with rice',
+            'price' => 6
+        ]);
+
+        $params = [
+            'id' => $food->id,
+            'name' => 'Beef with cheese',
+            'price' => 10
+        ];
+
+        $this->put('/food/' . $params['id'], $params);
+
+        $this->assertDatabaseHas('food', [
+            'id' => $food->id,
+            'name' => 'Beef with cheese',
+            'price' => 10
+        ]);
+    }
+
+    /**
+     * @test
+     */
+    public function it_deletes_food_successfully()
+    {
+        $food = Food::factory()->create([
+            'name' => 'Chicken with rice',
+            'price' => 6
+        ]);
+
+        $params = [
+            'id' => $food->id
+        ];
+
+        $this->delete('/food/' . $params['id'], $params);
+
+        $this->assertDatabaseMissing('food', [
+            'id' => $food->id,
+            'name' => 'Chicken with rice',
+            'price' => 6
+        ]);
+
+    }
+
 
 }

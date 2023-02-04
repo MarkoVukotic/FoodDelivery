@@ -15,7 +15,13 @@ class FoodController extends Controller
      */
     public function index()
     {
-        //
+        $foods = Food::all();
+
+        if ($foods->isEmpty()) {
+            return 'We dont have any food left. Come back later!';
+        }
+
+        return $foods;
     }
 
     /**
@@ -31,7 +37,7 @@ class FoodController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\StoreFoodRequest  $request
+     * @param \App\Http\Requests\StoreFoodRequest $request
      * @return \Illuminate\Http\Response
      */
     public function store(StoreFoodRequest $request)
@@ -42,7 +48,7 @@ class FoodController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Food  $food
+     * @param \App\Models\Food $food
      * @return \Illuminate\Http\Response
      */
     public function show(Food $food)
@@ -53,7 +59,7 @@ class FoodController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Food  $food
+     * @param \App\Models\Food $food
      * @return \Illuminate\Http\Response
      */
     public function edit(Food $food)
@@ -64,23 +70,31 @@ class FoodController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\Http\Requests\UpdateFoodRequest  $request
-     * @param  \App\Models\Food  $food
+     * @param \App\Http\Requests\UpdateFoodRequest $request
+     * @param \App\Models\Food $food
      * @return \Illuminate\Http\Response
      */
     public function update(UpdateFoodRequest $request, Food $food)
     {
-        //
+
+        $name = $request->validated('name');
+        $price = $request->validated('price');
+
+        $food->update([
+            'name' => $name,
+            'price' => $price
+        ]);
+
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Food  $food
+     * @param \App\Models\Food $food
      * @return \Illuminate\Http\Response
      */
     public function destroy(Food $food)
     {
-        //
+        $food->delete();
     }
 }
